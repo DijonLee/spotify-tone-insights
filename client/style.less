@@ -1,0 +1,162 @@
+@accent-color: #2EBD59;
+@error-color: #FB654A;
+@secondary-text-color: #c1c1c1;
+
+// get the page ready
+* { outline: none; box-sizing: border-box; }
+body { padding: 0; margin: 0; }
+html, body, .spotify-login { height: 100%; width: 100%; position: absolute; top: 0; right: 0; }
+body, button, input {
+  font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+  font-size: 1em;
+}
+h1, h2, h3, h4, h5, h6 {margin: 0; font-family: "HelveticaNeue-UltraLight", "Helvetica Neue UltraLight", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;}
+h1 { font-size: 2.25em; font-weight: normal;}
+h2 { font-size: 1.75em; font-weight: normal; margin-bottom: 20px;}
+h3 { font-size: 1.5em;  font-weight: normal;}
+h4 { font-size: 1.25em; font-weight: normal;}
+h5 { font-size: 1em;  font-weight: normal;}
+h6 { font-size: 1em;  font-weight: normal;}
+ul { list-style: none; margin: 0; padding: 0; }
+
+a {
+  &:visited, &:link {
+    color: @secondary-text-color;
+  }
+  &:hover, &:active {
+    color: @accent-color;
+  }
+}
+
+// make our buttons look like the spotify button
+button {
+  height: 49px;
+  background-color: @accent-color;
+  border-radius: 24.5px;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  min-width: 200px;
+  cursor: pointer;
+  &:hover {
+    background-color: black;
+  }
+}
+
+// let the real CSS begin
+.spotify-login {
+  display: flex;
+  flex-direction: column;
+  h1 {
+    background-color: @accent-color;
+    color: #fff;
+    padding: 20px 50px;
+  }
+  .page-content {
+    padding: 10px 50px 0px 50px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  // login page
+  .login {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    text-align: center;
+    .login-btn .spotify-btn {
+      .main {
+        fill: @accent-color;
+      }
+      &:hover .main {
+        fill: black;
+      }
+    }
+  }
+
+  // error page
+  .error {
+    color: @error-color;
+    &, h2 { font-weight: bold; }
+  }
+
+  // user page
+  .user {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    .header-container {
+      height: 50px;
+    }
+    .user-header {
+      display: flex;
+      align-items: center;
+      h2 {
+        margin: 0;
+      }
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 20px;
+      }
+    }
+  }
+
+  .list-container {
+    flex: 1;
+    overflow: auto;
+    .list {
+      .item {
+        display: flex;
+        padding: 7px 0px;
+        &.labels {
+          font-weight: bold;
+          color: @secondary-text-color;
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
+
+  .playlists {
+    flex: 1;
+    overflow: auto;
+    .playlist-list {
+      .playlist {
+        a {
+          display: flex;
+          flex: 1;
+          &:hover {
+            &, .name {
+              color: #000;
+            }
+          }
+        }
+        &.labels {
+          .name { color: @secondary-text-color; }
+        }
+        .name {
+          flex: 3;
+          color: @accent-color;
+        }
+        .track-count {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .selected-playlist {
+    .track-list {
+      .track {
+        .name { flex: 3; }
+        .artists { flex: 2; }
+        .album { flex: 1; }
+      }
+    }
+  }
+}
