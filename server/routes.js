@@ -1,10 +1,11 @@
 'use strict';
 
 const Spotify = require('spotify-web-api-node');
-const querystring = require('querystring');
+const Promise = require('bluebird');
 const express = require('express');
 const watson = require('watson-developer-cloud');
 const cfenv = require('cfenv');
+const request = Promise.promisifyAll(require('request'));
 const router = new express.Router();
 
 let envVars = {};
@@ -43,6 +44,10 @@ const spotifyApi = new Spotify({
   clientSecret: CLIENT_SECRET,
   redirectUri: REDIRECT_URI
 });
+
+// configure musixmatch
+const MUSIXMATCH_URL = 'http://api.musixmatch.com/ws/1.1';
+const MUSIXMATCH_KEY = envVars.MUSIXMATCH_KEY || process.env.MUSIXMATCH_KEY;
 
 /** Generates a random string containing numbers and letters of N characters */
 const generateRandomString = N => (Math.random().toString(36)+Array(N).join('0')).slice(2, N+2);
@@ -93,17 +98,53 @@ router.get('/callback', (req, res) => {
  * The tone endpoint
  */
 router.get('/tone', (req, res) => {
-  const { text } = req.query;
-  toneAnalyzer.tone({ text }, (e, tone) => {
-    if (e) {
-      res.status(500);
-      res.json(e);
-      console.error(e);
-      console.error(e.stack);
-    } else {
-      res.json(tone);
-    }
-  });
+  const { track, artist, album } = req.query;
+  matchSong(track, artist, album)
+    .then(track_id => getLyrics(track_id))
+    .then(text => {
+      toneAnalyzer.tone({ text }, (e, tone) => {
+        if (e) {
+          handleError(e, res)
+        } else {
+          res.json(tone);
+        }
+      });
+    }).catch(e => handleError(e, res));
 });
+
+// get a track id from a song
+function matchSong(track, artist, album) {
+  return request.getAsync({
+    url: `${MUSIXMATCH_URL}/matcher.track.get`,
+    json: true,
+    qs: {
+      apikey: MUSIXMATCH_KEY,
+      q_track: track,
+      q_artist: artist,
+      q_album: album,
+      f_has_lyrics: 1
+    }
+  }).then(response => response.body.message.body.track.track_id);
+}
+
+// get song lyrics from a track id
+function getLyrics(track_id) {
+  return request.getAsync({
+    url: `${MUSIXMATCH_URL}/track.lyrics.get`,
+    json: true,
+    qs: {
+      apikey: MUSIXMATCH_KEY,
+      track_id
+    }
+  }).then(response => response.body.message.body.lyrics.lyrics_body);
+}
+
+// error handler
+function handleError(e, res) {
+  res.status(500);
+  res.json(e);
+  console.error(e);
+  console.error(e.stack);
+}
 
 module.exports = router;

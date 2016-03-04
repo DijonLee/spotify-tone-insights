@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "better-npm-run": "0.0.6",
-    "bluebird": "^3.2.1",
+    "bluebird": "^3.3.3",
     "body-parser": "^1.14.2",
     "cfenv": "^1.0.3",
     "clone": "^1.0.2",
@@ -54,6 +54,7 @@
     "redbox-react": "^1.2.2",
     "redux": "^3.2.1",
     "redux-thunk": "^1.0.3",
+    "request": "^2.69.0",
     "spotify-web-api-js": "git+https://github.com/JMPerez/spotify-web-api-js.git",
     "spotify-web-api-node": "^2.2.0",
     "style-loader": "^0.13.0",

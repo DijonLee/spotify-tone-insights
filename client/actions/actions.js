@@ -59,8 +59,7 @@ export function loadPlaylist(playlistID) {
       // artist info. we then parse the json response and tack on the track id
       return Promise.all(data.tracks.items.map(i => {
         const t = i.track;
-        const text = `${t.name} ${t.album.name} ${t.artists.map(a => a.name).join(', ')}`;
-        return fetch(`/tone?text=${text}`)
+        return fetch(`/tone?track=${t.name}&artist=${t.artists.map(a => a.name).join(', ')}&album=${t.album.name}`)
           .then(r => r.json())
           .then(json => ({ id: t.id, tone: json.document_tone.tone_categories }));
       }));
