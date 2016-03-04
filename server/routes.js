@@ -28,7 +28,7 @@ const REDIRECT_URI = envVars.REDIRECT_URI || process.env.REDIRECT_URI;
 const MAX_OFFSET = 50;
 const STATE_KEY = 'spotify_auth_state';
 // your application requests authorization
-const scopes = ['user-read-private', 'user-library-read'];
+const scopes = ['user-read-private', 'user-library-read', 'playlist-read-private'];
 
 // configure watson
 const toneAnalyzer = watson.tone_analyzer({
