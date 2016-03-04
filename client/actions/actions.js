@@ -12,6 +12,7 @@ export const PLAYLIST_LOAD_FAILURE = 'PLAYLIST_LOAD_FAILURE';
 export const TRACK_LIST_BEGIN = 'TRACK_LIST_BEGIN';
 export const TRACK_LIST_SUCCESS = 'TRACK_LIST_SUCCESS';
 export const TRACK_LIST_TONE = 'TRACK_LIST_TONE';
+export const TRACK_LIST_TONE_ERROR = 'TRACK_LIST_TONE_ERROR';
 export const TRACK_LIST_FAILURE = 'TRACK_LIST_FAILURE';
 
 /** set the app's access and refresh tokens */
@@ -57,14 +58,19 @@ export function loadPlaylist(playlistID) {
       // once we have the tracks, make requests for their tone information. we
       // do this by hitting the /tone endpoint with the tracks name, album, and
       // artist info. we then parse the json response and tack on the track id
-      return Promise.all(data.tracks.items.map(i => {
+      data.tracks.items.map(i => {
         const t = i.track;
         return fetch(`/tone?track=${t.name}&artist=${t.artists.map(a => a.name).join(', ')}&album=${t.album.name}`)
           .then(r => r.json())
-          .then(json => ({ id: t.id, tone: json.document_tone.tone_categories }));
-      }));
-    }).then(data => {
-      dispatch({ type: TRACK_LIST_TONE, data, playlistID });
+          .then(json => dispatch({
+            type: TRACK_LIST_TONE,
+            id: t.id,
+            tone: json.document_tone.tone_categories,
+            playlistID
+          })).catch(error => {
+            dispatch({ type: TRACK_LIST_TONE_ERROR, error, playlistID, id: t.id });
+          });
+      });
     }).catch(error => {
       dispatch({ type: TRACK_LIST_FAILURE, error });
     })

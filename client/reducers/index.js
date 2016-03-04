@@ -17,10 +17,10 @@ const initialState = {
   },
   selectedPlaylist: {
     loading: false,
-    toneLoading: false,
     id: null,
     name: null,
     tracks: [],
+    idToIndexMap: {},
   }
 };
 
@@ -84,12 +84,18 @@ export default function reduce(state = initialState, action) {
 
   // when we get the data set the data, kiddo
   case c.TRACK_LIST_SUCCESS:
+    const idToIndexMap = {};
+    const tracks = action.data.tracks.items.map((item, i) => {
+      idToIndexMap[item.track.id] = i;
+      return item.track;
+    });
     return Object.assign({}, state, {
       selectedPlaylist: Object.assign({}, state.selectedPlaylist, {
         loading: false,
         id: action.data.id,
         name: action.data.name,
-        tracks: action.data.tracks.items.map(i => i.track),
+        tracks,
+        idToIndexMap,
       })
     });
 
@@ -98,21 +104,29 @@ export default function reduce(state = initialState, action) {
   case c.TRACK_LIST_TONE:
     // first do a check to make sure the playlist is still selected
     if (action.playlistID === state.selectedPlaylist.id) {
-      const newTracks = [];
-      for (let i = 0; i < action.data.length; i++) {
-        const {id, tone} = action.data[i];
-        const track = state.selectedPlaylist.tracks[i];
-        // only tack on the tone data if the ids match
-        if (id === track.id) {
-          newTracks.push(Object.assign({}, track, { tone }));
-        } else {
-          newTracks.push(track)
-        }
-      }
+      const newTracks = Object.assign([], state.selectedPlaylist.tracks);
+      const index = state.selectedPlaylist.idToIndexMap[action.id];
+      const track = state.selectedPlaylist.tracks[index];
+      newTracks[index] = Object.assign({}, track, { tone: action.tone });
       // update our track data and set loading to false
       return Object.assign({}, state, {
         selectedPlaylist: Object.assign({}, state.selectedPlaylist, {
-          toneLoading: false,
+          tracks: newTracks,
+        })
+      });
+    }
+    return state;
+
+  case c.TRACK_LIST_TONE_ERROR:
+    // first do a check to make sure the playlist is still selected
+    if (action.playlistID === state.selectedPlaylist.id) {
+      const newTracks = Object.assign([], state.selectedPlaylist.tracks);
+      const index = state.selectedPlaylist.idToIndexMap[action.id];
+      const track = state.selectedPlaylist.tracks[index];
+      newTracks[index] = Object.assign({}, track, { error: true });
+      // update our track data and set loading to false
+      return Object.assign({}, state, {
+        selectedPlaylist: Object.assign({}, state.selectedPlaylist, {
           tracks: newTracks,
         })
       });
