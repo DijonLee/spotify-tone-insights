@@ -97,18 +97,23 @@ router.get('/callback', (req, res) => {
 /**
  * The tone endpoint
  */
+const monolithicInMemoryCache = {};
 router.get('/tone', (req, res) => {
   const { track, artist, album } = req.query;
+  let trackId;
   matchSong(track, artist, album)
-    .then(track_id => getLyrics(track_id))
-    .then(text => {
-      toneAnalyzer.tone({ text }, (e, tone) => {
-        if (e) {
-          handleError(e, res)
-        } else {
-          res.json(tone);
-        }
-      });
+    .then(track_id => {
+      trackId = track_id;
+      if (!!monolithicInMemoryCache[trackId]) return;
+      return getLyrics(track_id);
+    }).then(text => {
+      if (!!monolithicInMemoryCache[trackId]) {
+        return monolithicInMemoryCache[trackId];
+      }
+      return toneAsync(text);
+    }).then(tone => {
+      monolithicInMemoryCache[trackId] = tone;
+      res.json(tone)
     }).catch(e => handleError(e, res));
 });
 
@@ -137,6 +142,19 @@ function getLyrics(track_id) {
       track_id
     }
   }).then(response => response.body.message.body.lyrics.lyrics_body);
+}
+
+// promise-based tone analysis
+function toneAsync(text) {
+  return new Promise((resolve, reject) => {
+    toneAnalyzer.tone({ text }, (e, tone) => {
+      if (e) {
+        reject(e);
+      } else {
+        resolve(tone);
+      }
+    });
+  });
 }
 
 // error handler
