@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { setTokens, loadPlaylist } from '../actions/actions';
 
 class Playlist extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { sort: null };
+  }
+
   componentDidMount() {
     // injected via react-router
     const {dispatch, params} = this.props;
@@ -11,10 +17,46 @@ class Playlist extends Component {
     dispatch(loadPlaylist(params.playlistID));
   }
 
+  sortTracks(a, b) {
+    const { sort } = this.state;
+    switch (sort) {
+    case 'name':
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return 0;
+
+    case 'album':
+      if (a.album.name < b.album.name) return -1;
+      if (a.album.name > b.album.name) return 1;
+      return 0;
+
+    case 'artists':
+      const aArtists = a.artists.map(a => a.name).join(', ');
+      const bArtists = b.artists.map(a => a.name).join(', ');
+      if (aArtists < bArtists) return -1;
+      if (aArtists > bArtists) return 1;
+      return 0;
+
+    case 'anger':
+    case 'disgust':
+    case 'fear':
+    case 'joy':
+    case 'sadness':
+      const indexMap = { anger: 0, disgust: 1, fear: 2, joy: 3, sadness: 4};
+      const aTone = a.error ? 0 : a.tone[0].tones[indexMap[sort]].score;
+      const bTone = b.error ? 0 : b.tone[0].tones[indexMap[sort]].score;
+      return bTone - aTone;
+
+    default:
+      return a.playlist_index - b.playlist_index;
+    }
+  }
+
   render() {
     // injected via react-router and connect
     const { params, selectedPlaylist } = this.props;
     const { loading, name, id, tracks } = selectedPlaylist;
+    const { accessToken, refreshToken, playlistID } = params;
     if (loading) {
       return (
         <div className="selected-playlist">
@@ -27,19 +69,19 @@ class Playlist extends Component {
         <h3>{name}</h3>
         <ul className="track-list list">{[
           <li key="tracklabels" className="track labels item">
-            <span className="name">Name</span>
-            <span className="tone anger">Anger</span>
-            <span className="tone disgust">Disgust</span>
-            <span className="tone fear">Fear</span>
-            <span className="tone joy">Joy</span>
-            <span className="tone sadness">Sadness</span>
-            <span className="artists">Artists</span>
-            <span className="album">Album</span>
+            <span className="number" onClick={e => this.setState({sort: null})}>#</span>
+            <span className="name" onClick={e => this.setState({sort: 'name'})}>Name</span>
+            <span className="tone anger" onClick={e => this.setState({sort: 'anger'})}>Anger</span>
+            <span className="tone disgust" onClick={e => this.setState({sort: 'disgust'})}>Disgust</span>
+            <span className="tone fear" onClick={e => this.setState({sort: 'fear'})}>Fear</span>
+            <span className="tone joy" onClick={e => this.setState({sort: 'joy'})}>Joy</span>
+            <span className="tone sadness" onClick={e => this.setState({sort: 'sadness'})}>Sadness</span>
+            <span className="artists" onClick={e => this.setState({sort: 'artists'})}>Artists</span>
+            <span className="album" onClick={e => this.setState({sort: 'album'})}>Album</span>
           </li>
         ].concat(
-          tracks.map(t =>
-            <Track key={t.id} track={t} />
-          )
+          tracks.sort((a, b) => this.sortTracks(a, b))
+            .map(t => <Track key={t.id} track={t} />)
         )}</ul>
       </div>
     );
@@ -57,6 +99,7 @@ class Track extends Component {
     const [ anger = {}, disgust = {}, fear = {}, joy = {}, sadness = {} ] = toneLoading ? [] : track.tone[0].tones;
     return(
       <li className="track item">
+        <span className="number">{track.playlist_index + 1}</span>
         <span className="name">{track.name}</span>
         <span className="tone anger">{this.getText(toneLoading, error, anger.score)}</span>
         <span className="tone disgust">{this.getText(toneLoading, error, disgust.score)}</span>

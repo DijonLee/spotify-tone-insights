@@ -87,6 +87,7 @@ export default function reduce(state = initialState, action) {
     const idToIndexMap = {};
     const tracks = action.data.tracks.items.map((item, i) => {
       idToIndexMap[item.track.id] = i;
+      item.track.playlist_index = i;
       return item.track;
     });
     return Object.assign({}, state, {
