@@ -1,0 +1,11 @@
+applications:
+- services:
+  - Tone Analyzer
+  - Spotify Cloudant
+  host: spotifyinsights
+  name: spotifyinsights
+  command: npm start
+  path: .
+  domain: mybluemix.net
+  instances: 1
+  memory: 512M
