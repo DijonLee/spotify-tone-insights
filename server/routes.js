@@ -4,22 +4,15 @@ const Spotify = require('spotify-web-api-node');
 const Promise = require('bluebird');
 const express = require('express');
 const watson = require('watson-developer-cloud');
-const cfenv = require('cfenv');
 const request = Promise.promisifyAll(require('request'));
 const router = new express.Router();
+const appEnv = require('./appEnv');
+const cloudant = require('./cloudant');
 
 let envVars = {};
 try {
   envVars = require('./ENV_VARS.json');
 } catch(e) {} // don't do anything, just means JSON file doesnt exist
-
-// configure vcap services
-let cfenvOpts = null;
-try {
-  cfenvOpts = { vcap: { services: require('./VCAP_SERVICES.json') } };
-} catch(e) {}; // don't do anything, just means JSON file doesnt exist
-const appEnv = cfenv.getAppEnv(cfenvOpts);
-const toneCredentials = appEnv.getService(/tone analyzer/ig).credentials;
 
 // configure the spotify credentials
 const CLIENT_ID = envVars.CLIENT_ID || process.env.CLIENT_ID;
@@ -31,6 +24,7 @@ const STATE_KEY = 'spotify_auth_state';
 const scopes = ['user-read-private', 'user-library-read', 'playlist-read-private'];
 
 // configure watson
+const toneCredentials = appEnv.getService(/tone analyzer/ig).credentials;
 const toneAnalyzer = watson.tone_analyzer({
   username: toneCredentials.username,
   password: toneCredentials.password,
@@ -97,25 +91,39 @@ router.get('/callback', (req, res) => {
 /**
  * The tone endpoint
  */
-const monolithicInMemoryCache = {};
 router.get('/tone', (req, res) => {
   const { track, artist, album } = req.query;
-  let trackId;
-  matchSong(track, artist, album)
-    .then(track_id => {
-      trackId = track_id;
-      if (!!monolithicInMemoryCache[trackId]) return;
-      return getLyrics(track_id);
-    }).then(text => {
-      if (!!monolithicInMemoryCache[trackId]) {
-        return monolithicInMemoryCache[trackId];
-      }
-      return toneAsync(text);
-    }).then(tone => {
-      monolithicInMemoryCache[trackId] = tone;
-      res.json(tone)
-    }).catch(e => handleError(e, res));
+  getLyrics(track, artist, album).then(lyrics => {
+    return toneAsync(lyrics);
+  }).then(tone => {
+    res.json(tone);
+  }).catch(e => {
+    res.status(500);
+    res.json(e);
+    console.error(e);
+    console.error(e.stack);
+  });
 });
+
+// first see if lyrics are in cloudant, if they aren't get the song from
+// musixmatch, and put the result in cloudant for some fun caching. returns
+// a promise that resolves with the lyrics
+function getLyrics(track, artist, album) {
+  return cloudant.get(track, artist, album).then(body => {
+    return body.lyrics;
+  }, e => {
+    if (e.error === 'not_found') {
+      return matchSong(track, artist, album)
+        .then(id => getLyricsFromMusixMatch(id))
+        .then(lyrics => {
+          cloudant.insert(track, artist, album, lyrics);
+          return lyrics;
+        });
+    } else {
+      throw e;
+    }
+  });
+}
 
 // get a track id from a song
 function matchSong(track, artist, album) {
@@ -133,7 +141,7 @@ function matchSong(track, artist, album) {
 }
 
 // get song lyrics from a track id
-function getLyrics(track_id) {
+function getLyricsFromMusixMatch(track_id) {
   return request.getAsync({
     url: `${MUSIXMATCH_URL}/track.lyrics.get`,
     json: true,
@@ -141,7 +149,14 @@ function getLyrics(track_id) {
       apikey: MUSIXMATCH_KEY,
       track_id
     }
-  }).then(response => response.body.message.body.lyrics.lyrics_body);
+  }).then(response => cleanLyrics(response.body.message.body.lyrics.lyrics_body));
+}
+
+// strip legal stuff from lyrics and pad \ns with spaces so watson tone can read them
+function cleanLyrics(lyrics) {
+  const COPYRIGHT = '******* This Lyrics is NOT for Commercial use *******';
+  const cIndex = lyrics.indexOf(COPYRIGHT);
+  return lyrics.substring(0, cIndex).replace(/\n/g, ' \n ');
 }
 
 // promise-based tone analysis
@@ -155,14 +170,6 @@ function toneAsync(text) {
       }
     });
   });
-}
-
-// error handler
-function handleError(e, res) {
-  res.status(500);
-  res.json(e);
-  console.error(e);
-  console.error(e.stack);
 }
 
 module.exports = router;
