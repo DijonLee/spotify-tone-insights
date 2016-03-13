@@ -9,8 +9,12 @@ export default class SpotifyLogin extends Component {
     // injected via react router
     const {children} = this.props;
     return (
-      <div className="spotify-login">
-        <h1>Spotify Library Insights</h1>
+      <div className="spotify-tone-insights">
+        <div className="header">
+          <h1>Spotify Tone Insights</h1>
+          <a href="http://jkaufman.io/spotify-tone-insights" target="_blank">Blog Post</a>
+          <a href="https://github.com/kauffecup/spotify-tone-insights" target="_blank">Github</a>
+        </div>
         <div className="page-content">
           {children}
         </div>

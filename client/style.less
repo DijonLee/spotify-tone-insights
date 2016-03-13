@@ -44,14 +44,26 @@ button {
 }
 
 // let the real CSS begin
-.spotify-login {
+.spotify-tone-insights {
   display: flex;
   flex-direction: column;
-  h1 {
-    background-color: @accent-color;
-    color: #fff;
+
+  .header {
     padding: 20px 50px;
+    background-color: @accent-color;
+    display: flex;
+    align-items: center;
+    h1 {
+      color: #fff;
+      flex: 1;
+    }
+    a {
+      color: #fff;
+      &:hover { color: @secondary-text-color; }
+      margin-left: 20px;
+    }
   }
+
   .page-content {
     padding: 10px 50px 0px 50px;
     display: flex;
