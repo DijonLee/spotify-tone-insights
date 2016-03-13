@@ -26,22 +26,23 @@ class Playlists extends Component {
     if (loading) {
       return (
         <div className="playlists">
-          <h3>Loading</h3>
+          <h3 className="section">Loading</h3>
         </div>
       );
     }
     return (
       <div className="playlists list-container">
-        <ul className="playlist-list list">{[
-          <li key="playlistlabels" className="playlist labels item">
-            <span className="name">Name</span>
-            <span className="track-count">Track Count</span>
-          </li>
-        ].concat(
+        <div className="labels-container section">
+          <div className="labels">
+            <span className="name label">Name</span>
+            <span className="track-count label">Track Count</span>
+          </div>
+        </div>
+        <ul className="playlist-list list section">{
           items.map(p =>
             <PlaylistListItem key={p.id} playlist={p} accessToken={accessToken} refreshToken={refreshToken} />
           )
-        )}</ul>
+        }</ul>
       </div>
     );
   }

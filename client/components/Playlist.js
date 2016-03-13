@@ -43,8 +43,8 @@ class Playlist extends Component {
     case 'joy':
     case 'sadness':
       const indexMap = { anger: 0, disgust: 1, fear: 2, joy: 3, sadness: 4};
-      const aTone = a.error ? 0 : a.tone[0].tones[indexMap[sort]].score;
-      const bTone = b.error ? 0 : b.tone[0].tones[indexMap[sort]].score;
+      const aTone = a.error ? 0 : (a.tone ? a.tone[0].tones[indexMap[sort]].score : 0);
+      const bTone = b.error ? 0 : (b.tone ? b.tone[0].tones[indexMap[sort]].score : 0);
       return bTone - aTone;
 
     default:
@@ -59,30 +59,33 @@ class Playlist extends Component {
     const { accessToken, refreshToken, playlistID } = params;
     if (loading) {
       return (
-        <div className="selected-playlist">
-          <h3>Loading...</h3>
+        <div className="selected-playlist list-container">
+          <h3 className="section">Loading...</h3>
         </div>
       );
     }
     return (
       <div className="selected-playlist list-container">
-        <h3>{name}</h3>
-        <ul className="track-list list">{[
-          <li key="tracklabels" className="track labels item">
-            <span className="number" onClick={e => this.setState({sort: null})}>#</span>
-            <span className="name" onClick={e => this.setState({sort: 'name'})}>Name</span>
-            <span className="tone anger" onClick={e => this.setState({sort: 'anger'})}>Anger</span>
-            <span className="tone disgust" onClick={e => this.setState({sort: 'disgust'})}>Disgust</span>
-            <span className="tone fear" onClick={e => this.setState({sort: 'fear'})}>Fear</span>
-            <span className="tone joy" onClick={e => this.setState({sort: 'joy'})}>Joy</span>
-            <span className="tone sadness" onClick={e => this.setState({sort: 'sadness'})}>Sadness</span>
-            <span className="artists" onClick={e => this.setState({sort: 'artists'})}>Artists</span>
-            <span className="album" onClick={e => this.setState({sort: 'album'})}>Album</span>
-          </li>
-        ].concat(
-          tracks.sort((a, b) => this.sortTracks(a, b))
-            .map(t => <Track key={t.id} track={t} />)
-        )}</ul>
+        <h3 className="section">{name}</h3>
+        <div className="list-container">
+          <div className="labels-container section">
+            <div className="labels">
+              <span className="number label" onClick={e => this.setState({sort: null})}>#</span>
+              <span className="name label" onClick={e => this.setState({sort: 'name'})}>Name</span>
+              <span className="tone anger label" onClick={e => this.setState({sort: 'anger'})}>Anger</span>
+              <span className="tone disgust label" onClick={e => this.setState({sort: 'disgust'})}>Disgust</span>
+              <span className="tone fear label" onClick={e => this.setState({sort: 'fear'})}>Fear</span>
+              <span className="tone joy label" onClick={e => this.setState({sort: 'joy'})}>Joy</span>
+              <span className="tone sadness label" onClick={e => this.setState({sort: 'sadness'})}>Sadness</span>
+              <span className="artists label" onClick={e => this.setState({sort: 'artists'})}>Artists</span>
+              <span className="album label" onClick={e => this.setState({sort: 'album'})}>Album</span>
+            </div>
+          </div>
+          <ul className="track-list list section">{
+            tracks.sort((a, b) => this.sortTracks(a, b))
+              .map(t => <Track key={t.id} track={t} />)
+          }</ul>
+        </div>
       </div>
     );
   }

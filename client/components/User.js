@@ -26,14 +26,14 @@ class User extends Component {
     if (loading) {
       return (
         <div className="user">
-          <div className="user-header"><h2>Loading...</h2></div>
+          <div className="user-header section"><h2>Loading...</h2></div>
         </div>
       )
     }
     // otherwise show dat user page
     return (
       <div className="user">
-        <div className="header-container">
+        <div className="header-container section">
           <div className="user-header">{loading ?
             <h2>Loading...</h2> : [
             <img src={imageUrl} />,

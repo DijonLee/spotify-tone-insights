@@ -3,9 +3,9 @@
 @secondary-text-color: #c1c1c1;
 
 // get the page ready
-* { outline: none; box-sizing: border-box; }
+* { outline: none; }
 body { padding: 0; margin: 0; }
-html, body, .spotify-login { height: 100%; width: 100%; position: absolute; top: 0; right: 0; }
+html, body, .spotify-tone-insights { height: 100%; width: 100%; position: absolute; top: 0; right: 0; }
 body, button, input {
   font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
   font-size: 1em;
@@ -49,7 +49,8 @@ button {
   flex-direction: column;
 
   .header {
-    padding: 20px 50px;
+    padding: 0px 50px;
+    height: 80px;
     background-color: @accent-color;
     display: flex;
     align-items: center;
@@ -64,8 +65,11 @@ button {
     }
   }
 
+  .section {
+    padding: 10px 50px;
+  }
+
   .page-content {
-    padding: 10px 50px 0px 50px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -120,23 +124,35 @@ button {
 
   .list-container {
     flex: 1;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    .labels-container {
+    }
+    .labels {
+      font-weight: bold;
+      color: @secondary-text-color;
+      text-transform: uppercase;
+      display: flex;
+    }
     .list {
+      flex: 1;
+      overflow: auto;
+      padding-top: 0;
       .item {
         display: flex;
         padding: 7px 0px;
-        &.labels {
-          font-weight: bold;
-          color: @secondary-text-color;
-          text-transform: uppercase;
-        }
       }
     }
   }
 
   .playlists {
-    flex: 1;
-    overflow: auto;
+    .labels, .playlist-list .playlist {
+      .name { flex: 3; }
+      .track-count {
+        flex: 1;
+        text-align: right;
+      }
+    }
     .playlist-list {
       .playlist {
         a {
@@ -148,30 +164,21 @@ button {
             }
           }
         }
-        &.labels {
-          .name { color: @secondary-text-color; }
-        }
         .name {
-          flex: 3;
           color: @accent-color;
-        }
-        .track-count {
-          flex: 1;
         }
       }
     }
   }
 
   .selected-playlist {
-    .track-list {
-      .track {
-        &.labels > { cursor: pointer; }
-        .number { width: 30px; }
-        .name { flex: 3; }
-        .tone { flex: 1; }
-        .artists { flex: 2; }
-        .album { flex: 2; }
-      }
+    .labels > { cursor: pointer; }
+    .labels, .track-list .track {
+      .number { width: 30px; }
+      .name { flex: 3; }
+      .tone { flex: 1; }
+      .artists { flex: 2; }
+      .album { flex: 2; }
     }
   }
 }
