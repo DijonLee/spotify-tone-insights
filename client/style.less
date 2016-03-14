@@ -182,3 +182,61 @@ button {
     }
   }
 }
+
+// tablet-ish
+@media (max-width: 1024px) {
+  h1 { font-size: 1.75em; }
+  h2, h3 { font-size: 1.5em; }
+  body, button, input { font-size: 0.9em; }
+  .spotify-tone-insights {
+    .header {
+      height: 50px;
+      padding: 0px 30px;
+    }
+  }
+}
+
+// iphone-ish
+@media (max-width: 736px) {
+  h1 { font-size: 1.25em; }
+  h2, h3 { font-size: 1.15em; }
+  body, button, input { font-size: 0.85em; }
+  .spotify-tone-insights {
+    .header {
+      height: 35px;
+      padding: 0px 20px;
+    }
+
+    .section {
+      padding: 5px;
+    }
+
+    .user {
+      .header-container {
+        height: 35px;
+        .user-header {
+          img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+
+    .selected-playlist {
+      .track-list, .labels-container {
+        .labels, .track {
+          .name { flex: 2; }
+          .number { display: none; }
+          .album { display: none; }
+          .artists { display: none; }
+          .tone {
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+  }
+}
