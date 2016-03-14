@@ -1,3 +1,4 @@
+import request from 'superagent';
 import Spotify from 'spotify-web-api-js';
 const spotifyApi = new Spotify();
 
@@ -60,19 +61,35 @@ export function loadPlaylist(playlistID) {
       // artist info. we then parse the json response and tack on the track id
       data.tracks.items.map(i => {
         const t = i.track;
-        return fetch(`/tone?track=${t.name}&artist=${t.artists.map(a => a.name).join(', ')}&album=${t.album.name}`)
-          .then(r => r.json())
-          .then(json => dispatch({
-            type: TRACK_LIST_TONE,
-            id: t.id,
-            tone: json.document_tone.tone_categories,
-            playlistID
-          })).catch(error => {
-            dispatch({ type: TRACK_LIST_TONE_ERROR, error, playlistID, id: t.id });
-          });
+        return asyncGet('/tone', {
+          track: t.name,
+          artist: t.artists.map(a => a.name).join(', '),
+          album: t.album.name
+        }).then(({ body }) => dispatch({
+          type: TRACK_LIST_TONE,
+          id: t.id,
+          tone: body.document_tone.tone_categories,
+          playlistID
+        })).catch(error => {
+          dispatch({ type: TRACK_LIST_TONE_ERROR, error, playlistID, id: t.id });
+        });
       });
     }).catch(error => {
       dispatch({ type: TRACK_LIST_FAILURE, error });
     })
   }
+}
+
+function asyncGet(url, query) {
+  return new Promise((resolve, reject) => {
+    request.get(url)
+      .query(query)
+      .end((err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      })
+  });
 }

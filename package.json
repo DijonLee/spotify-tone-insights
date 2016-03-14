@@ -52,6 +52,7 @@
     "request": "^2.69.0",
     "spotify-web-api-js": "git+https://github.com/JMPerez/spotify-web-api-js.git",
     "spotify-web-api-node": "^2.2.0",
+    "superagent": "^1.8.0",
     "watson-developer-cloud": "^1.2.3"
   },
   "devDependencies": {
