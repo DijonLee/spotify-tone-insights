@@ -50,11 +50,10 @@ export function loadPlaylists() {
 }
 
 /* load a single playlist and get it's tone information */
-export function loadPlaylist(playlistID) {
-  return (dispatch, getState) => {
-    const { user } = getState();
+export function loadPlaylist(userID, playlistID) {
+  return dispatch => {
     dispatch({ type: TRACK_LIST_BEGIN });
-    spotifyApi.getPlaylist(user.id, playlistID).then(data => {
+    spotifyApi.getPlaylist(userID, playlistID).then(data => {
       dispatch({ type: TRACK_LIST_SUCCESS, data });
       // once we have the tracks, make requests for their tone information. we
       // do this by hitting the /tone endpoint with the tracks name, album, and

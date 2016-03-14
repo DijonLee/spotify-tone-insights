@@ -12,9 +12,9 @@ class Playlist extends Component {
   componentDidMount() {
     // injected via react-router
     const {dispatch, params} = this.props;
-    const {accessToken, refreshToken} = params;
+    const {accessToken, refreshToken, userID, playlistID} = params;
     dispatch(setTokens({accessToken, refreshToken}));
-    dispatch(loadPlaylist(params.playlistID));
+    dispatch(loadPlaylist(userID, playlistID));
   }
 
   sortTracks(a, b) {

@@ -36,7 +36,7 @@ class Root extends Component {
             <Route path="error/:errorMsg" component={Error} />
             <Route path="user/:accessToken/:refreshToken" component={User}>
               <IndexRoute component={Playlists} />
-              <Route path="playlist/:playlistID" component={Playlist} />
+              <Route path="playlist/:userID/:playlistID" component={Playlist} />
             </Route>
           </Route>
         </Router>

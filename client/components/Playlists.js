@@ -56,7 +56,7 @@ class PlaylistListItem extends Component {
     const { playlist: p, accessToken, refreshToken } = this.props;
     return(
       <li className="playlist item">
-        <Link to={`/user/${accessToken}/${refreshToken}/playlist/${p.id}`}>
+        <Link to={`/user/${accessToken}/${refreshToken}/playlist/${p.owner.id}/${p.id}`}>
           <span className="name">{p.name}</span>
           <span className="track-count">{p.tracks.total}</span>
         </Link>
