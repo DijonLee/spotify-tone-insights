@@ -3,6 +3,8 @@
 Analyze the lyrics in your Spotify playlists using
 [IBM Watson Tone Analytics][ta].
 
+![screenshot](http://jkaufman.io/assets/images/post-images/spotify-tone-insights/screenshot.png)
+
 App is currently hosted [here][app].
 
 [Here][blog]'s my blog post about the motivation and how this app is set up.
